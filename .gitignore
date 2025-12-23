@@ -33,3 +33,9 @@ pnpm-debug.log*
 # Testing
 coverage/
 .nyc_output/
+
+# API Reference files
+xibo-api-*.txt
+xibo-api-*.json
+xibo-api-*.csv
+xibo-api-*.md
