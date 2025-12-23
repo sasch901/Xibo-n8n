@@ -1,7 +1,7 @@
 {
-  "name": "xibo-n8n-nodes",
+  "name": "n8n-nodes-xibo",
   "version": "0.1.0",
-  "description": "Custom n8n nodes for Xibo integration",
+  "description": "n8n community nodes for Xibo CMS integration",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
