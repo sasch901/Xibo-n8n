@@ -1343,6 +1343,7 @@ export class Xibo implements INodeType {
 								type: 'options',
 								typeOptions: {
 									loadOptionsMethod: 'getDataSetColumns',
+									loadOptionsDependsOn: ['dataSetId'],
 								},
 								default: '',
 								description: 'The column to set. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
@@ -1809,22 +1810,27 @@ export class Xibo implements INodeType {
 					return [];
 				}
 
-				const credentials = await this.getCredentials('xiboApi');
-				const accessToken = await getAccessToken(this as any, credentials);
-				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+				try {
+					const credentials = await this.getCredentials('xiboApi');
+					const accessToken = await getAccessToken(this as any, credentials);
+					const baseUrl = (credentials.url as string).replace(/\/$/, '');
 
-				const columns = await xiboApiRequest(
-					this as any,
-					'GET',
-					`/api/dataset/${dataSetId}/column`,
-					accessToken,
-					baseUrl,
-				);
+					const columns = await xiboApiRequest(
+						this as any,
+						'GET',
+						`/api/dataset/${dataSetId}/column`,
+						accessToken,
+						baseUrl,
+					);
 
-				return columns.map((col: any) => ({
-					name: col.heading,
-					value: col.dataSetColumnId,
-				}));
+					return columns.map((col: any) => ({
+						name: col.heading,
+						value: col.dataSetColumnId,
+					}));
+				} catch (error) {
+					// Return empty array if columns can't be loaded
+					return [];
+				}
 			},
 		},
 	};
