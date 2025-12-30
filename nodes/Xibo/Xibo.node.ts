@@ -1245,18 +1245,118 @@ export class Xibo implements INodeType {
 
 			// DataSet ID
 			{
-				displayName: 'DataSet ID',
+				displayName: 'DataSet Name or ID',
 				name: 'dataSetId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getDataSets',
+				},
 				required: true,
 				displayOptions: {
 					show: {
 						resource: ['dataset'],
-						operation: ['get', 'update', 'delete', 'getData'],
+						operation: ['get', 'update', 'delete', 'getData', 'addRow', 'updateRow', 'deleteRow'],
 					},
 				},
 				default: '',
-				description: 'The ID of the dataset',
+				description: 'The dataset to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+			},
+
+			// DataSet Update Fields
+			{
+				displayName: 'Update Fields',
+				name: 'updateFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['dataset'],
+						operation: ['update'],
+					},
+				},
+				options: [
+					{
+						displayName: 'DataSet Name',
+						name: 'dataSet',
+						type: 'string',
+						default: '',
+						description: 'The name of the dataset',
+					},
+					{
+						displayName: 'Description',
+						name: 'description',
+						type: 'string',
+						default: '',
+						description: 'The description for this dataset',
+					},
+					{
+						displayName: 'Owner ID',
+						name: 'ownerId',
+						type: 'string',
+						default: '',
+						description: 'The ID of the user who owns this dataset',
+					},
+				],
+			},
+
+			// DataSet Row ID
+			{
+				displayName: 'Row ID',
+				name: 'rowId',
+				type: 'number',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['dataset'],
+						operation: ['updateRow', 'deleteRow'],
+					},
+				},
+				default: 0,
+				description: 'The ID of the row',
+			},
+
+			// DataSet Row Data
+			{
+				displayName: 'Column Values',
+				name: 'columnValues',
+				type: 'fixedCollection',
+				typeOptions: {
+					multipleValues: true,
+				},
+				placeholder: 'Add Column Value',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['dataset'],
+						operation: ['addRow', 'updateRow'],
+					},
+				},
+				options: [
+					{
+						name: 'values',
+						displayName: 'Column Value',
+						values: [
+							{
+								displayName: 'Column Name or ID',
+								name: 'columnId',
+								type: 'options',
+								typeOptions: {
+									loadOptionsMethod: 'getDataSetColumns',
+								},
+								default: '',
+								description: 'The column to set. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+							},
+							{
+								displayName: 'Value',
+								name: 'value',
+								type: 'string',
+								default: '',
+								description: 'The value for this column',
+							},
+						],
+					},
+				],
 			},
 
 			// DataSet Create Fields
@@ -2392,6 +2492,58 @@ export class Xibo implements INodeType {
 								method: 'DELETE',
 								url: `/api/dataset/${dataSetId}`,
 							},
+						);
+					} else if (operation === 'addRow') {
+						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
+						const columnValues = this.getNodeParameter('columnValues', i, {}) as IDataObject;
+
+						// Build the body from column values
+						const body: IDataObject = {};
+						if (columnValues.values && Array.isArray(columnValues.values)) {
+							for (const colValue of columnValues.values as Array<{columnId: string; value: string}>) {
+								body[colValue.columnId] = colValue.value;
+							}
+						}
+
+						responseData = await xiboApiRequest(
+							this,
+							'POST',
+							`/api/dataset/data/${dataSetId}`,
+							accessToken,
+							baseUrl,
+							body,
+						);
+					} else if (operation === 'updateRow') {
+						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
+						const rowId = this.getNodeParameter('rowId', i) as number;
+						const columnValues = this.getNodeParameter('columnValues', i, {}) as IDataObject;
+
+						// Build the body from column values
+						const body: IDataObject = {};
+						if (columnValues.values && Array.isArray(columnValues.values)) {
+							for (const colValue of columnValues.values as Array<{columnId: string; value: string}>) {
+								body[colValue.columnId] = colValue.value;
+							}
+						}
+
+						responseData = await xiboApiRequest(
+							this,
+							'PUT',
+							`/api/dataset/data/${dataSetId}/${rowId}`,
+							accessToken,
+							baseUrl,
+							body,
+						);
+					} else if (operation === 'deleteRow') {
+						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
+						const rowId = this.getNodeParameter('rowId', i) as number;
+
+						responseData = await xiboApiRequest(
+							this,
+							'DELETE',
+							`/api/dataset/data/${dataSetId}/${rowId}`,
+							accessToken,
+							baseUrl,
 						);
 					}
 				}
