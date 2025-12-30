@@ -13,25 +13,40 @@ export async function getAccessToken(
 
 	const url = (credentials.url as string).replace(/\/$/, '');
 
-	const tokenResponse = await context.helpers.httpRequest({
-		method: 'POST',
-		url: `${url}/api/authorize/access_token`,
-		headers: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		body: `grant_type=client_credentials&client_id=${encodeURIComponent(
-			credentials.clientId as string,
-		)}&client_secret=${encodeURIComponent(credentials.clientSecret as string)}`,
-		json: true,
-	});
+	try {
+		const tokenResponse = await context.helpers.httpRequest({
+			method: 'POST',
+			url: `${url}/api/authorize/access_token`,
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: `grant_type=client_credentials&client_id=${encodeURIComponent(
+				credentials.clientId as string,
+			)}&client_secret=${encodeURIComponent(credentials.clientSecret as string)}`,
+		});
 
-	// Cache token for 50 minutes (tokens usually expire after 1 hour)
-	cachedToken = {
-		token: tokenResponse.access_token as string,
-		expiresAt: Date.now() + 50 * 60 * 1000,
-	};
+		// Parse JSON response if it's a string
+		const response = typeof tokenResponse === 'string' ? JSON.parse(tokenResponse) : tokenResponse;
 
-	return cachedToken.token;
+		if (!response.access_token) {
+			throw new Error('No access token in response');
+		}
+
+		// Cache token for 50 minutes (tokens usually expire after 1 hour)
+		cachedToken = {
+			token: response.access_token as string,
+			expiresAt: Date.now() + 50 * 60 * 1000,
+		};
+
+		return cachedToken.token;
+	} catch (error: any) {
+		// Provide more detailed error message
+		const errorMessage = error.response?.body?.error_description
+			|| error.response?.body?.message
+			|| error.message
+			|| 'Unknown error';
+		throw new Error(`Xibo OAuth2 authentication failed: ${errorMessage}`);
+	}
 }
 
 export async function xiboApiRequest(
