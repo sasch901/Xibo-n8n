@@ -79,3 +79,62 @@ export async function xiboApiRequest(
 
 	return await context.helpers.httpRequest(options);
 }
+
+export async function xiboApiRequestAllItems(
+	context: IExecuteFunctions,
+	endpoint: string,
+	accessToken: string,
+	baseUrl: string,
+	qs: IDataObject = {},
+	limit?: number,
+): Promise<any[]> {
+	const returnAll = limit === undefined;
+	const results: any[] = [];
+	let start = 0;
+	const pageSize = 100; // Fetch 100 items per request
+
+	do {
+		const queryParams = {
+			...qs,
+			start,
+			length: returnAll ? pageSize : Math.min(pageSize, limit! - results.length),
+		};
+
+		const response = await xiboApiRequest(
+			context,
+			'GET',
+			endpoint,
+			accessToken,
+			baseUrl,
+			undefined,
+			queryParams,
+		);
+
+		// Xibo API returns an array directly
+		const items = Array.isArray(response) ? response : [];
+
+		if (items.length === 0) {
+			break;
+		}
+
+		results.push(...items);
+		start += items.length;
+
+		// If we got fewer items than requested, we've reached the end
+		if (items.length < pageSize) {
+			break;
+		}
+
+		// If we have a limit and reached it, stop
+		if (!returnAll && results.length >= limit!) {
+			break;
+		}
+	} while (returnAll || results.length < limit!);
+
+	// Trim to exact limit if specified
+	if (!returnAll && results.length > limit!) {
+		return results.slice(0, limit);
+	}
+
+	return results;
+}

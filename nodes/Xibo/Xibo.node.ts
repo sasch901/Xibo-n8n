@@ -9,7 +9,7 @@ import type {
 	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-import { getAccessToken, xiboApiRequest } from './XiboHelper';
+import { getAccessToken, xiboApiRequest, xiboApiRequestAllItems } from './XiboHelper';
 
 export class Xibo implements INodeType {
 	description: INodeTypeDescription = {
@@ -239,11 +239,11 @@ export class Xibo implements INodeType {
 				},
 				options: [
 					{
-						displayName: 'Display Name',
-						name: 'display',
-						type: 'string',
-						default: '',
-						description: 'Filter by display name',
+						displayName: 'Authorized',
+						name: 'authorised',
+						type: 'boolean',
+						default: true,
+						description: 'Whether to filter by authorization status',
 					},
 					{
 						displayName: 'Display Group ID',
@@ -253,11 +253,33 @@ export class Xibo implements INodeType {
 						description: 'Filter by display group',
 					},
 					{
-						displayName: 'Authorized',
-						name: 'authorised',
+						displayName: 'Display Name',
+						name: 'display',
+						type: 'string',
+						default: '',
+						description: 'Filter by display name',
+					},
+					{
+						displayName: 'Limit',
+						name: 'limit',
+						type: 'number',
+						displayOptions: {
+							show: {
+								returnAll: [false],
+							},
+						},
+						typeOptions: {
+							minValue: 1,
+						},
+						default: 50,
+						description: 'Max number of results to return',
+					},
+					{
+						displayName: 'Return All',
+						name: 'returnAll',
 						type: 'boolean',
-						default: true,
-						description: 'Whether to filter by authorization status',
+						default: false,
+						description: 'Whether to return all results or only up to a given limit',
 					},
 				],
 			},
@@ -1668,19 +1690,22 @@ export class Xibo implements INodeType {
 				if (resource === 'display') {
 					if (operation === 'getAll') {
 						const filters = this.getNodeParameter('filters', i, {}) as IDataObject;
+						const returnAll = filters.returnAll as boolean;
+						const limit = filters.limit as number;
 						const qs: IDataObject = {};
 
 						if (filters.display) qs.display = filters.display;
 						if (filters.displayGroupId) qs.displayGroupId = filters.displayGroupId;
 						if (filters.authorised !== undefined) qs.authorised = filters.authorised ? 1 : 0;
 
-						responseData = await xiboApiRequest(
-						this,
-						'GET',
-						'/api/display',
-						accessToken,
-						baseUrl,
-					);
+						responseData = await xiboApiRequestAllItems(
+							this,
+							'/api/display',
+							accessToken,
+							baseUrl,
+							qs,
+							returnAll ? undefined : limit,
+						);
 					} else if (operation === 'get') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
 						responseData = await this.helpers.httpRequestWithAuthentication.call(
@@ -1752,12 +1777,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'layout') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/layout',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
@@ -1856,12 +1882,13 @@ export class Xibo implements INodeType {
 						if (filters.type) qs.type = filters.type;
 						if (filters.ownerId) qs.ownerId = filters.ownerId;
 
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/library',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const mediaId = this.getNodeParameter('mediaId', i) as string;
@@ -1944,12 +1971,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'schedule') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/schedule',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const eventId = this.getNodeParameter('eventId', i) as string;
@@ -2014,12 +2042,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'displayGroup') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/displaygroup',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const displayGroupId = this.getNodeParameter('displayGroupId', i) as string;
@@ -2104,12 +2133,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'campaign') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/campaign',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const campaignId = this.getNodeParameter('campaignId', i) as string;
@@ -2179,12 +2209,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'playlist') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/playlist',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const playlistId = this.getNodeParameter('playlistId', i) as string;
@@ -2239,12 +2270,13 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'dataset') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
+						responseData = await xiboApiRequestAllItems(
 						this,
-						'GET',
 						'/api/dataset',
 						accessToken,
 						baseUrl,
+						{},
+						undefined, // Return all
 					);
 					} else if (operation === 'get') {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
@@ -2309,13 +2341,14 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'command') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
-							this,
-							'GET',
-							'/api/command',
-							accessToken,
-							baseUrl,
-						);
+						responseData = await xiboApiRequestAllItems(
+						this,
+						'/api/command',
+						accessToken,
+						baseUrl,
+						{},
+						undefined, // Return all
+					);
 					} else if (operation === 'get') {
 						const commandId = this.getNodeParameter('commandId', i) as string;
 						responseData = await xiboApiRequest(
@@ -2333,13 +2366,14 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'tag') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
-							this,
-							'GET',
-							'/api/tag',
-							accessToken,
-							baseUrl,
-						);
+						responseData = await xiboApiRequestAllItems(
+						this,
+						'/api/tag',
+						accessToken,
+						baseUrl,
+						{},
+						undefined, // Return all
+					);
 					} else if (operation === 'get') {
 						const tagId = this.getNodeParameter('tagId', i) as string;
 						responseData = await xiboApiRequest(
@@ -2387,13 +2421,14 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'user') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
-							this,
-							'GET',
-							'/api/user',
-							accessToken,
-							baseUrl,
-						);
+						responseData = await xiboApiRequestAllItems(
+						this,
+						'/api/user',
+						accessToken,
+						baseUrl,
+						{},
+						undefined, // Return all
+					);
 					} else if (operation === 'get') {
 						const userId = this.getNodeParameter('userId', i) as string;
 						responseData = await xiboApiRequest(
@@ -2442,13 +2477,14 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'notification') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
-							this,
-							'GET',
-							'/api/notification',
-							accessToken,
-							baseUrl,
-						);
+						responseData = await xiboApiRequestAllItems(
+						this,
+						'/api/notification',
+						accessToken,
+						baseUrl,
+						{},
+						undefined, // Return all
+					);
 					} else if (operation === 'get') {
 						const notificationId = this.getNodeParameter('notificationId', i) as string;
 						responseData = await xiboApiRequest(
@@ -2466,13 +2502,14 @@ export class Xibo implements INodeType {
 				// ====================================
 				else if (resource === 'folder') {
 					if (operation === 'getAll') {
-						responseData = await xiboApiRequest(
-							this,
-							'GET',
-							'/api/folder',
-							accessToken,
-							baseUrl,
-						);
+						responseData = await xiboApiRequestAllItems(
+						this,
+						'/api/folder',
+						accessToken,
+						baseUrl,
+						{},
+						undefined, // Return all
+					);
 					} else if (operation === 'get') {
 						const folderId = this.getNodeParameter('folderId', i) as string;
 						responseData = await xiboApiRequest(
