@@ -1186,6 +1186,12 @@ export class Xibo implements INodeType {
 				},
 				options: [
 					{
+						name: 'Add Row',
+						value: 'addRow',
+						description: 'Add a row to a dataset',
+						action: 'Add row to dataset',
+					},
+					{
 						name: 'Create',
 						value: 'create',
 						description: 'Create a dataset',
@@ -1196,6 +1202,12 @@ export class Xibo implements INodeType {
 						value: 'delete',
 						description: 'Delete a dataset',
 						action: 'Delete a dataset',
+					},
+					{
+						name: 'Delete Row',
+						value: 'deleteRow',
+						description: 'Delete a row from a dataset',
+						action: 'Delete row from dataset',
 					},
 					{
 						name: 'Get',
@@ -1220,6 +1232,12 @@ export class Xibo implements INodeType {
 						value: 'update',
 						description: 'Update a dataset',
 						action: 'Update a dataset',
+					},
+					{
+						name: 'Update Row',
+						value: 'updateRow',
+						description: 'Update a row in a dataset',
+						action: 'Update row in dataset',
 					},
 				],
 				default: 'getAll',
@@ -1664,6 +1682,48 @@ export class Xibo implements INodeType {
 				return displayGroups.map((group: any) => ({
 					name: group.displayGroup,
 					value: group.displayGroupId,
+				}));
+			},
+
+			async getDataSets(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const dataSets = await xiboApiRequestAllItems(
+					this as any,
+					'/api/dataset',
+					accessToken,
+					baseUrl,
+				);
+
+				return dataSets.map((ds: any) => ({
+					name: ds.dataSet,
+					value: ds.dataSetId,
+				}));
+			},
+
+			async getDataSetColumns(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const dataSetId = this.getCurrentNodeParameter('dataSetId') as string;
+				if (!dataSetId) {
+					return [];
+				}
+
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const columns = await xiboApiRequest(
+					this as any,
+					'GET',
+					`/api/dataset/${dataSetId}/column`,
+					accessToken,
+					baseUrl,
+				);
+
+				return columns.map((col: any) => ({
+					name: col.heading,
+					value: col.dataSetColumnId,
 				}));
 			},
 		},
