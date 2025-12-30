@@ -1868,57 +1868,52 @@ export class Xibo implements INodeType {
 						);
 					} else if (operation === 'get') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/display/${displayId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/display/${displayId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'getStatus') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/display/status/${displayId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/display/status/${displayId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'update') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/display/${displayId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/display/${displayId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'authorize') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/display/authorise/${displayId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/display/authorise/${displayId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'requestScreenshot') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/display/requestscreenshot/${displayId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/display/requestscreenshot/${displayId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'wakeOnLan') {
 						const displayId = this.getNodeParameter('displayId', i) as string;
 						responseData = await this.helpers.httpRequestWithAuthentication.call(
@@ -1947,14 +1942,13 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/layout/${layoutId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/layout/${layoutId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const name = this.getNodeParameter('name', i) as string;
 						const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
@@ -1975,45 +1969,41 @@ export class Xibo implements INodeType {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/layout/${layoutId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/layout/${layoutId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/layout/${layoutId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/layout/${layoutId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'publish') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/layout/publish/${layoutId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/layout/publish/${layoutId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'checkout') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/layout/checkout/${layoutId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/layout/checkout/${layoutId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'copy') {
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
 						const name = this.getNodeParameter('name', i) as string;
@@ -2052,37 +2042,34 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const mediaId = this.getNodeParameter('mediaId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/library/${mediaId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/library/${mediaId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'update') {
 						const mediaId = this.getNodeParameter('mediaId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/library/${mediaId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/library/${mediaId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const mediaId = this.getNodeParameter('mediaId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/library/${mediaId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/library/${mediaId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'upload') {
 						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
 						const fileName = this.getNodeParameter('fileName', i) as string;
@@ -2141,14 +2128,13 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const eventId = this.getNodeParameter('eventId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/schedule/${eventId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/schedule/${eventId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const eventTypeId = this.getNodeParameter('eventTypeId', i) as string;
 						const displayGroupIds = this.getNodeParameter('displayGroupIds', i) as string;
@@ -2175,25 +2161,23 @@ export class Xibo implements INodeType {
 						const eventId = this.getNodeParameter('eventId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/schedule/${eventId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/schedule/${eventId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const eventId = this.getNodeParameter('eventId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/schedule/${eventId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/schedule/${eventId}`,
+						accessToken,
+						baseUrl,
+					);
 					}
 				}
 
@@ -2212,14 +2196,13 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const displayGroupId = this.getNodeParameter('displayGroupId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/displaygroup/${displayGroupId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/displaygroup/${displayGroupId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const displayGroup = this.getNodeParameter('displayGroup', i) as string;
 
@@ -2236,25 +2219,23 @@ export class Xibo implements INodeType {
 						const displayGroupId = this.getNodeParameter('displayGroupId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/displaygroup/${displayGroupId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/displaygroup/${displayGroupId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const displayGroupId = this.getNodeParameter('displayGroupId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/displaygroup/${displayGroupId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/displaygroup/${displayGroupId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'changeLayout') {
 						const displayGroupId = this.getNodeParameter('displayGroupId', i) as string;
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
@@ -2303,14 +2284,13 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const campaignId = this.getNodeParameter('campaignId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/campaign/${campaignId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/campaign/${campaignId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const name = this.getNodeParameter('name', i) as string;
 
@@ -2327,25 +2307,23 @@ export class Xibo implements INodeType {
 						const campaignId = this.getNodeParameter('campaignId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/campaign/${campaignId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/campaign/${campaignId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const campaignId = this.getNodeParameter('campaignId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/campaign/${campaignId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/campaign/${campaignId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'assignLayout') {
 						const campaignId = this.getNodeParameter('campaignId', i) as string;
 						const layoutId = this.getNodeParameter('layoutId', i) as string;
@@ -2379,14 +2357,13 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const playlistId = this.getNodeParameter('playlistId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/playlist/${playlistId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/playlist/${playlistId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const name = this.getNodeParameter('name', i) as string;
 
@@ -2403,25 +2380,23 @@ export class Xibo implements INodeType {
 						const playlistId = this.getNodeParameter('playlistId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/playlist/${playlistId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/playlist/${playlistId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const playlistId = this.getNodeParameter('playlistId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/playlist/${playlistId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/playlist/${playlistId}`,
+						accessToken,
+						baseUrl,
+					);
 					}
 				}
 
@@ -2440,24 +2415,22 @@ export class Xibo implements INodeType {
 					);
 					} else if (operation === 'get') {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/dataset/${dataSetId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/dataset/${dataSetId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'getData') {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'GET',
-								url: `/api/dataset/data/${dataSetId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'GET',
+						`/api/dataset/data/${dataSetId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'create') {
 						const dataSet = this.getNodeParameter('dataSet', i) as string;
 
@@ -2474,25 +2447,23 @@ export class Xibo implements INodeType {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
 						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
 
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'PUT',
-								url: `/api/dataset/${dataSetId}`,
-								body: updateFields,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'PUT',
+						`/api/dataset/${dataSetId}`,
+						accessToken,
+						baseUrl,
+						updateFields,
+					);
 					} else if (operation === 'delete') {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
-						responseData = await this.helpers.httpRequestWithAuthentication.call(
-							this,
-							'xiboApi',
-							{
-								method: 'DELETE',
-								url: `/api/dataset/${dataSetId}`,
-							},
-						);
+						responseData = await xiboApiRequest(
+						this,
+						'DELETE',
+						`/api/dataset/${dataSetId}`,
+						accessToken,
+						baseUrl,
+					);
 					} else if (operation === 'addRow') {
 						const dataSetId = this.getNodeParameter('dataSetId', i) as string;
 						const columnValues = this.getNodeParameter('columnValues', i, {}) as IDataObject;
