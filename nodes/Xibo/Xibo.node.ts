@@ -175,7 +175,6 @@ export class Xibo implements INodeType {
 						name: 'display',
 						type: 'string',
 						default: '',
-						description: 'The display name',
 					},
 					{
 						displayName: 'Description',
@@ -189,7 +188,6 @@ export class Xibo implements INodeType {
 						name: 'defaultLayoutId',
 						type: 'string',
 						default: '',
-						description: 'The default layout ID',
 					},
 					{
 						displayName: 'Licensed',
@@ -234,7 +232,7 @@ export class Xibo implements INodeType {
 						name: 'authorised',
 						type: 'boolean',
 						default: true,
-						description: 'Filter by authorization status',
+						description: 'Whether to filter by authorization status',
 					},
 				],
 			},

@@ -10,8 +10,8 @@
   "license": "MIT",
   "homepage": "https://github.com/sasch901/Xibo-n8n",
   "author": {
-    "name": "Your Name",
-    "email": "your.email@example.com"
+    "name": "sasch901",
+    "email": "sasch901@users.noreply.github.com"
   },
   "repository": {
     "type": "git",
@@ -27,8 +27,8 @@
     "build": "tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
+    "lint": "eslint nodes credentials",
+    "lintfix": "eslint nodes credentials --fix",
     "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json"
   },
   "files": [
