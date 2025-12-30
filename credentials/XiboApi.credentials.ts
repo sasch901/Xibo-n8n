@@ -1,4 +1,6 @@
 import type {
+	IAuthenticateGeneric,
+	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
@@ -8,6 +10,12 @@ export class XiboApi implements ICredentialType {
 	displayName = 'Xibo API';
 	documentationUrl = 'https://xibosignage.com/docs/developer/cms-api/auth';
 	properties: INodeProperties[] = [
+		{
+			displayName: 'To get your API credentials: Log into your Xibo CMS → Click your username (top right) → My Account → Applications → Add Application. Set a name and select "client_credentials" as Grant Type. Copy the Client ID and Secret shown after creation.',
+			name: 'notice',
+			type: 'notice',
+			default: '',
+		},
 		{
 			displayName: 'CMS URL',
 			name: 'url',
@@ -22,7 +30,8 @@ export class XiboApi implements ICredentialType {
 			name: 'clientId',
 			type: 'string',
 			default: '',
-			description: 'The Client ID from your Xibo CMS Application (found in My Account > Applications)',
+			placeholder: 'WDzJ9MzQyZmRlOWJmNTE3YWRjOTc4MGFi',
+			description: 'The Client ID from your Xibo CMS Application',
 			required: true,
 		},
 		{
@@ -37,4 +46,16 @@ export class XiboApi implements ICredentialType {
 			required: true,
 		},
 	];
+
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: '={{$credentials.url}}',
+			url: '/api/authorize/access_token',
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: 'grant_type=client_credentials&client_id={{$credentials.clientId}}&client_secret={{$credentials.clientSecret}}',
+		},
+	};
 }

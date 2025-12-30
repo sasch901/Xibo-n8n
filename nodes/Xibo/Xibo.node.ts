@@ -5,6 +5,8 @@ import type {
 	INodeTypeDescription,
 	IDataObject,
 	IHttpRequestMethods,
+	ILoadOptionsFunctions,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { getAccessToken, xiboApiRequest } from './XiboHelper';
@@ -49,6 +51,10 @@ export class Xibo implements INodeType {
 						value: 'campaign',
 					},
 					{
+						name: 'Command',
+						value: 'command',
+					},
+					{
 						name: 'DataSet',
 						value: 'dataset',
 					},
@@ -61,6 +67,10 @@ export class Xibo implements INodeType {
 						value: 'displayGroup',
 					},
 					{
+						name: 'Folder',
+						value: 'folder',
+					},
+					{
 						name: 'Layout',
 						value: 'layout',
 					},
@@ -69,12 +79,24 @@ export class Xibo implements INodeType {
 						value: 'library',
 					},
 					{
+						name: 'Notification',
+						value: 'notification',
+					},
+					{
 						name: 'Playlist',
 						value: 'playlist',
 					},
 					{
 						name: 'Schedule',
 						value: 'schedule',
+					},
+					{
+						name: 'Tag',
+						value: 'tag',
+					},
+					{
+						name: 'User',
+						value: 'user',
 					},
 				],
 				default: 'display',
@@ -142,9 +164,12 @@ export class Xibo implements INodeType {
 
 			// Display ID (for single display operations)
 			{
-				displayName: 'Display ID',
+				displayName: 'Display Name or ID',
 				name: 'displayId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getDisplays',
+				},
 				required: true,
 				displayOptions: {
 					show: {
@@ -153,7 +178,7 @@ export class Xibo implements INodeType {
 					},
 				},
 				default: '',
-				description: 'The ID of the display',
+				description: 'The display to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 
 			// Display Update Fields
@@ -305,9 +330,12 @@ export class Xibo implements INodeType {
 
 			// Layout ID
 			{
-				displayName: 'Layout ID',
+				displayName: 'Layout Name or ID',
 				name: 'layoutId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getLayouts',
+				},
 				required: true,
 				displayOptions: {
 					show: {
@@ -316,7 +344,7 @@ export class Xibo implements INodeType {
 					},
 				},
 				default: '',
-				description: 'The ID of the layout',
+				description: 'The layout to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 
 			// Layout Create Fields
@@ -456,6 +484,12 @@ export class Xibo implements INodeType {
 						description: 'Update media file details',
 						action: 'Update a media file',
 					},
+					{
+						name: 'Upload',
+						value: 'upload',
+						description: 'Upload a new media file',
+						action: 'Upload a media file',
+					},
 				],
 				default: 'getAll',
 			},
@@ -510,6 +544,65 @@ export class Xibo implements INodeType {
 						type: 'string',
 						default: '',
 						description: 'Comma-separated list of tags',
+					},
+				],
+			},
+
+			// Media Upload Fields
+			{
+				displayName: 'Binary Property',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['library'],
+						operation: ['upload'],
+					},
+				},
+				description: 'Name of the binary property containing the file data',
+			},
+			{
+				displayName: 'File Name',
+				name: 'fileName',
+				type: 'string',
+				default: '',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['library'],
+						operation: ['upload'],
+					},
+				},
+				description: 'Name for the uploaded file',
+			},
+			{
+				displayName: 'Additional Fields',
+				name: 'additionalFields',
+				type: 'collection',
+				placeholder: 'Add Field',
+				default: {},
+				displayOptions: {
+					show: {
+						resource: ['library'],
+						operation: ['upload'],
+					},
+				},
+				options: [
+					{
+						displayName: 'Tags',
+						name: 'tags',
+						type: 'string',
+						default: '',
+						description: 'Comma-separated list of tags',
+					},
+					{
+						displayName: 'Folder ID',
+						name: 'folderId',
+						type: 'string',
+						default: '',
+						description: 'The folder to upload the file to',
 					},
 				],
 			},
@@ -793,9 +886,12 @@ export class Xibo implements INodeType {
 
 			// Display Group ID
 			{
-				displayName: 'Display Group ID',
+				displayName: 'Display Group Name or ID',
 				name: 'displayGroupId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getDisplayGroups',
+				},
 				required: true,
 				displayOptions: {
 					show: {
@@ -804,7 +900,7 @@ export class Xibo implements INodeType {
 					},
 				},
 				default: '',
-				description: 'The ID of the display group',
+				description: 'The display group to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 
 			// Display Group Create Fields
@@ -924,9 +1020,12 @@ export class Xibo implements INodeType {
 
 			// Campaign ID
 			{
-				displayName: 'Campaign ID',
+				displayName: 'Campaign Name or ID',
 				name: 'campaignId',
-				type: 'string',
+				type: 'options',
+				typeOptions: {
+					loadOptionsMethod: 'getCampaigns',
+				},
 				required: true,
 				displayOptions: {
 					show: {
@@ -935,7 +1034,7 @@ export class Xibo implements INodeType {
 					},
 				},
 				default: '',
-				description: 'The ID of the campaign',
+				description: 'The campaign to use. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
 			},
 
 			// Campaign Create Fields
@@ -1135,7 +1234,417 @@ export class Xibo implements INodeType {
 				default: '',
 				description: 'The name of the dataset',
 			},
+
+			// ====================================
+			// Command Operations
+			// ====================================
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['command'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many commands',
+						action: 'Get many commands',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a command by ID',
+						action: 'Get a command',
+					},
+				],
+				default: 'getAll',
+			},
+			{
+				displayName: 'Command ID',
+				name: 'commandId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['command'],
+						operation: ['get'],
+					},
+				},
+				default: '',
+				description: 'The ID of the command',
+			},
+
+			// ====================================
+			// Tag Operations
+			// ====================================
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['tag'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a tag',
+						action: 'Create a tag',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a tag',
+						action: 'Delete a tag',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a tag by ID',
+						action: 'Get a tag',
+					},
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many tags',
+						action: 'Get many tags',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a tag',
+						action: 'Update a tag',
+					},
+				],
+				default: 'getAll',
+			},
+			{
+				displayName: 'Tag ID',
+				name: 'tagId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['tag'],
+						operation: ['get', 'update', 'delete'],
+					},
+				},
+				default: '',
+				description: 'The ID of the tag',
+			},
+			{
+				displayName: 'Tag Name',
+				name: 'tag',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['tag'],
+						operation: ['create'],
+					},
+				},
+				default: '',
+				description: 'The name of the tag',
+			},
+
+			// ====================================
+			// User Operations
+			// ====================================
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['user'],
+					},
+				},
+				options: [
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a user',
+						action: 'Create a user',
+					},
+					{
+						name: 'Delete',
+						value: 'delete',
+						description: 'Delete a user',
+						action: 'Delete a user',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a user by ID',
+						action: 'Get a user',
+					},
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many users',
+						action: 'Get many users',
+					},
+					{
+						name: 'Update',
+						value: 'update',
+						description: 'Update a user',
+						action: 'Update a user',
+					},
+				],
+				default: 'getAll',
+			},
+			{
+				displayName: 'User ID',
+				name: 'userId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['user'],
+						operation: ['get', 'update', 'delete'],
+					},
+				},
+				default: '',
+				description: 'The ID of the user',
+			},
+			{
+				displayName: 'Username',
+				name: 'userName',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['user'],
+						operation: ['create'],
+					},
+				},
+				default: '',
+				description: 'The username for the new user',
+			},
+			{
+				displayName: 'User Type',
+				name: 'userTypeId',
+				type: 'options',
+				options: [
+					{
+						name: 'User',
+						value: 3,
+					},
+					{
+						name: 'Group Admin',
+						value: 2,
+					},
+					{
+						name: 'Super Admin',
+						value: 1,
+					},
+				],
+				displayOptions: {
+					show: {
+						resource: ['user'],
+						operation: ['create'],
+					},
+				},
+				default: 3,
+			},
+
+			// ====================================
+			// Notification Operations
+			// ====================================
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['notification'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many notifications',
+						action: 'Get many notifications',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a notification by ID',
+						action: 'Get a notification',
+					},
+				],
+				default: 'getAll',
+			},
+			{
+				displayName: 'Notification ID',
+				name: 'notificationId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['notification'],
+						operation: ['get'],
+					},
+				},
+				default: '',
+				description: 'The ID of the notification',
+			},
+
+			// ====================================
+			// Folder Operations
+			// ====================================
+			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				displayOptions: {
+					show: {
+						resource: ['folder'],
+					},
+				},
+				options: [
+					{
+						name: 'Get Many',
+						value: 'getAll',
+						description: 'Get many folders',
+						action: 'Get many folders',
+					},
+					{
+						name: 'Get',
+						value: 'get',
+						description: 'Get a folder by ID',
+						action: 'Get a folder',
+					},
+					{
+						name: 'Create',
+						value: 'create',
+						description: 'Create a folder',
+						action: 'Create a folder',
+					},
+				],
+				default: 'getAll',
+			},
+			{
+				displayName: 'Folder ID',
+				name: 'folderId',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['folder'],
+						operation: ['get'],
+					},
+				},
+				default: '',
+				description: 'The ID of the folder',
+			},
+			{
+				displayName: 'Folder Name',
+				name: 'folderName',
+				type: 'string',
+				required: true,
+				displayOptions: {
+					show: {
+						resource: ['folder'],
+						operation: ['create'],
+					},
+				},
+				default: '',
+				description: 'The name of the folder',
+			},
 		],
+	};
+
+	methods = {
+		loadOptions: {
+			async getDisplays(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const displays = await xiboApiRequest(
+					this as any,
+					'GET',
+					'/api/display',
+					accessToken,
+					baseUrl,
+				);
+
+				return displays.map((display: any) => ({
+					name: display.display,
+					value: display.displayId,
+				}));
+			},
+
+			async getLayouts(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const layouts = await xiboApiRequest(
+					this as any,
+					'GET',
+					'/api/layout',
+					accessToken,
+					baseUrl,
+				);
+
+				return layouts.map((layout: any) => ({
+					name: layout.layout,
+					value: layout.layoutId,
+				}));
+			},
+
+			async getCampaigns(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const campaigns = await xiboApiRequest(
+					this as any,
+					'GET',
+					'/api/campaign',
+					accessToken,
+					baseUrl,
+				);
+
+				return campaigns.map((campaign: any) => ({
+					name: campaign.campaign,
+					value: campaign.campaignId,
+				}));
+			},
+
+			async getDisplayGroups(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const credentials = await this.getCredentials('xiboApi');
+				const accessToken = await getAccessToken(this as any, credentials);
+				const baseUrl = (credentials.url as string).replace(/\/$/, '');
+
+				const displayGroups = await xiboApiRequest(
+					this as any,
+					'GET',
+					'/api/displaygroup',
+					accessToken,
+					baseUrl,
+				);
+
+				return displayGroups.map((group: any) => ({
+					name: group.displayGroup,
+					value: group.displayGroupId,
+				}));
+			},
+		},
 	};
 
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
@@ -1387,6 +1896,46 @@ export class Xibo implements INodeType {
 								url: `/api/library/${mediaId}`,
 							},
 						);
+					} else if (operation === 'upload') {
+						const binaryPropertyName = this.getNodeParameter('binaryPropertyName', i) as string;
+						const fileName = this.getNodeParameter('fileName', i) as string;
+						const additionalFields = this.getNodeParameter('additionalFields', i, {}) as IDataObject;
+
+						const binaryData = items[i].binary;
+						if (!binaryData || !binaryData[binaryPropertyName]) {
+							throw new NodeOperationError(
+								this.getNode(),
+								`No binary data found for property "${binaryPropertyName}"`,
+								{ itemIndex: i },
+							);
+						}
+
+						const fileBuffer = await this.helpers.getBinaryDataBuffer(i, binaryPropertyName);
+
+						// Create multipart form data
+						const FormData = require('form-data');
+						const formData = new FormData();
+						formData.append('files', fileBuffer, {
+							filename: fileName,
+							contentType: binaryData[binaryPropertyName].mimeType || 'application/octet-stream',
+						});
+
+						if (additionalFields.tags) {
+							formData.append('tags', additionalFields.tags as string);
+						}
+						if (additionalFields.folderId) {
+							formData.append('folderId', additionalFields.folderId as string);
+						}
+
+						responseData = await this.helpers.httpRequest({
+							method: 'POST',
+							url: `${baseUrl}/api/library`,
+							headers: {
+								Authorization: `Bearer ${accessToken}`,
+								...formData.getHeaders(),
+							},
+							body: formData,
+						});
 					}
 				}
 
@@ -1751,6 +2300,197 @@ export class Xibo implements INodeType {
 								method: 'DELETE',
 								url: `/api/dataset/${dataSetId}`,
 							},
+						);
+					}
+				}
+
+				// ====================================
+				// Command Resource
+				// ====================================
+				else if (resource === 'command') {
+					if (operation === 'getAll') {
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							'/api/command',
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'get') {
+						const commandId = this.getNodeParameter('commandId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							`/api/command/${commandId}`,
+							accessToken,
+							baseUrl,
+						);
+					}
+				}
+
+				// ====================================
+				// Tag Resource
+				// ====================================
+				else if (resource === 'tag') {
+					if (operation === 'getAll') {
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							'/api/tag',
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'get') {
+						const tagId = this.getNodeParameter('tagId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							`/api/tag/${tagId}`,
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'create') {
+						const tag = this.getNodeParameter('tag', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'POST',
+							'/api/tag',
+							accessToken,
+							baseUrl,
+							{ tag },
+						);
+					} else if (operation === 'update') {
+						const tagId = this.getNodeParameter('tagId', i) as string;
+						const tag = this.getNodeParameter('tag', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'PUT',
+							`/api/tag/${tagId}`,
+							accessToken,
+							baseUrl,
+							{ tag },
+						);
+					} else if (operation === 'delete') {
+						const tagId = this.getNodeParameter('tagId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'DELETE',
+							`/api/tag/${tagId}`,
+							accessToken,
+							baseUrl,
+						);
+					}
+				}
+
+				// ====================================
+				// User Resource
+				// ====================================
+				else if (resource === 'user') {
+					if (operation === 'getAll') {
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							'/api/user',
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'get') {
+						const userId = this.getNodeParameter('userId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							`/api/user/${userId}`,
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'create') {
+						const userName = this.getNodeParameter('userName', i) as string;
+						const userTypeId = this.getNodeParameter('userTypeId', i) as number;
+						responseData = await xiboApiRequest(
+							this,
+							'POST',
+							'/api/user',
+							accessToken,
+							baseUrl,
+							{ userName, userTypeId },
+						);
+					} else if (operation === 'update') {
+						const userId = this.getNodeParameter('userId', i) as string;
+						const updateFields = this.getNodeParameter('updateFields', i, {}) as IDataObject;
+						responseData = await xiboApiRequest(
+							this,
+							'PUT',
+							`/api/user/${userId}`,
+							accessToken,
+							baseUrl,
+							updateFields,
+						);
+					} else if (operation === 'delete') {
+						const userId = this.getNodeParameter('userId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'DELETE',
+							`/api/user/${userId}`,
+							accessToken,
+							baseUrl,
+						);
+					}
+				}
+
+				// ====================================
+				// Notification Resource
+				// ====================================
+				else if (resource === 'notification') {
+					if (operation === 'getAll') {
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							'/api/notification',
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'get') {
+						const notificationId = this.getNodeParameter('notificationId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							`/api/notification/${notificationId}`,
+							accessToken,
+							baseUrl,
+						);
+					}
+				}
+
+				// ====================================
+				// Folder Resource
+				// ====================================
+				else if (resource === 'folder') {
+					if (operation === 'getAll') {
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							'/api/folder',
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'get') {
+						const folderId = this.getNodeParameter('folderId', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'GET',
+							`/api/folder/${folderId}`,
+							accessToken,
+							baseUrl,
+						);
+					} else if (operation === 'create') {
+						const folderName = this.getNodeParameter('folderName', i) as string;
+						responseData = await xiboApiRequest(
+							this,
+							'POST',
+							'/api/folder',
+							accessToken,
+							baseUrl,
+							{ folderName },
 						);
 					}
 				}
